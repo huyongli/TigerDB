@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -12,7 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import cn.ittiger.database.SQLiteDB;
+import cn.ittiger.database.SQLiteDBConfig;
 import cn.ittiger.database.SQLiteDBFactory;
+import cn.ittiger.database.listener.IDBListener;
 import cn.ittiger.db.demo.model.User;
 
 /**
@@ -33,7 +36,20 @@ public class TigerDatabaseActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);// 无标题
 		setContentView(R.layout.activity_listview_layout);
 		
-		db = SQLiteDBFactory.createSQLiteDB(this);
+		SQLiteDBConfig config = new SQLiteDBConfig(this);
+		config.setDbListener(new IDBListener() {
+			@Override
+			public void onUpgradeHandler(SQLiteDatabase db, int oldVersion,
+					int newVersion) {
+				
+			}
+			
+			@Override
+			public void onDbCreateHandler(SQLiteDatabase db) {
+				showLongToast("数据库创建成功");
+			}
+		});
+		db = SQLiteDBFactory.createSQLiteDB(config);
 		
 		listView = (ListView) findViewById(R.id.lv_main);
 		
