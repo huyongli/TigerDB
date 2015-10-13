@@ -6,10 +6,9 @@ import java.lang.reflect.Method;
 import java.util.Date;
 
 import android.database.Cursor;
-
 import cn.ittiger.database.manager.FieldTypeManager;
-import cn.ittiger.database.util.DateUtil;
-import cn.ittiger.database.util.ValueUtil;
+import cn.ittiger.util.DateUtil;
+import cn.ittiger.util.ValueUtil;
 
 /**
  * 实体属性字段

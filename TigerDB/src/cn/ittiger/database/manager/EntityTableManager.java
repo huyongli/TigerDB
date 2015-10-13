@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import android.database.Cursor;
-
 import cn.ittiger.database.SQLBuilder;
 import cn.ittiger.database.annotation.Column;
 import cn.ittiger.database.annotation.NotDBColumn;
@@ -19,7 +18,7 @@ import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.Property;
 import cn.ittiger.database.util.CursorUtil;
 import cn.ittiger.database.util.FieldUtil;
-import cn.ittiger.database.util.ValueUtil;
+import cn.ittiger.util.ValueUtil;
 
 /**
  * 实体类管理对象

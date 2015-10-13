@@ -72,7 +72,7 @@ public class CursorUtil {
 				list.add(entity);
 			}
 		} catch (Exception e) {
-			TigerLog.error("解析查询结果集出错", e);
+			TigerLog.debug("解析查询结果集出错", e);
 			throw new IllegalArgumentException(e);
 		} finally {
 			closeCursor(cursor);
@@ -104,7 +104,7 @@ public class CursorUtil {
 				propertys.get(key).setValue(entity, cursor);
 			}
 		} catch (Exception e) {
-			TigerLog.error("解析查询结果集出错", e);
+			TigerLog.debug("解析查询结果集出错", e);
 			throw new IllegalArgumentException(e);
 		} finally {
 			closeCursor(cursor);
@@ -129,7 +129,7 @@ public class CursorUtil {
 			total = cursor.getLong(0);
 		} catch (Exception e) {
 			total = 0;
-			TigerLog.error("解析实体类总数出错", e);
+			TigerLog.debug("解析实体类总数出错", e);
 		} finally {
 			closeCursor(cursor);
 		}

@@ -1,4 +1,4 @@
-package cn.ittiger.database.util;
+package cn.ittiger.util;
 
 import java.util.Collection;
 

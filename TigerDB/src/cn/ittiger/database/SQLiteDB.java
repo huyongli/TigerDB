@@ -11,7 +11,7 @@ import cn.ittiger.database.bean.PrimaryKey;
 import cn.ittiger.database.manager.EntityTableManager;
 import cn.ittiger.database.manager.SQLExecuteManager;
 import cn.ittiger.database.util.CursorUtil;
-import cn.ittiger.database.util.ValueUtil;
+import cn.ittiger.util.ValueUtil;
 
 /**
  * 数据库操作类

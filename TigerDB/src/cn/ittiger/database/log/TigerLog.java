@@ -37,65 +37,17 @@ public final class TigerLog {
 	
 	public static final void debug(String msg) {
 		if(IS_DEBUG) {
-			Log.d(TAG, msg);
+			Log.i(TAG, msg);
 		}
 	}
 	
 	public static final void debug(String msg, Throwable e) {
 		if(IS_DEBUG) {
-			Log.d(TAG, msg, e);
-		}
-	}
-	
-	public static final void warn(Object msg) {
-		warn(msg.toString());
-	}
-	
-	public static final void warn(String msg) {
-		if(IS_DEBUG) {
-			Log.w(TAG, msg);
-		}
-	}
-	
-	public static final void warn(String msg, Throwable e) {
-		if(IS_DEBUG) {
-			Log.w(TAG, msg, e);
-		}
-	}
-	
-	public static final void info(Object msg) {
-		info(msg.toString());
-	}
-	
-	public static final void info(String msg) {
-		if(IS_DEBUG) {
-			Log.i(TAG, msg);
-		}
-	}
-	
-	public static final void info(String msg, Throwable e) {
-		if(IS_DEBUG) {
 			Log.i(TAG, msg, e);
 		}
 	}
 	
-	public static final void error(Object msg) {
-		error(msg.toString());
-	}
-	
-	public static final void error(String msg) {
-		if(IS_DEBUG) {
-			Log.i(TAG, msg);
-		}
-	}
-	
-	public static final void error(String msg, Throwable e) {
-		if(IS_DEBUG) {
-			Log.e(TAG, msg, e);
-		}
-	}
-	
-	public static final void info(String sql, Object[] params) {
+	public static final void debugSql(String sql, Object[] params) {
 		if(IS_DEBUG) {
 			StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < params.length; i++) {
@@ -108,7 +60,7 @@ public final class TigerLog {
 		}
 	}
 	
-	public static final void warn(String sql, Object[] params, Throwable e) {
+	public static final void debugSql(String sql, Object[] params, Throwable e) {
 		if(IS_DEBUG) {
 			StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < params.length; i++) {
@@ -117,7 +69,11 @@ public final class TigerLog {
 				}
 				sb.append(params.toString());
 			}
-			Log.w(TAG, "{SQL:" + sql + ",PARAMS：" + sb.toString() + "}", e);
+			Log.i(TAG, "{SQL:" + sql + ",PARAMS：" + sb.toString() + "}", e);
 		}
+	}
+	
+	public static final void debug(String format, Object...objects) {
+		debug(String.format(format, objects));
 	}
 }

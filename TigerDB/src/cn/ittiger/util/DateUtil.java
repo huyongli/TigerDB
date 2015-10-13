@@ -1,4 +1,4 @@
-package cn.ittiger.database.util;
+package cn.ittiger.util;
 
 import android.annotation.SuppressLint;
 import java.text.ParseException;

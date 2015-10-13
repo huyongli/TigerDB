@@ -3,8 +3,7 @@ package cn.ittiger.database;
 import java.util.HashMap;
 
 import android.content.Context;
-
-import cn.ittiger.database.util.ValueUtil;
+import cn.ittiger.util.ValueUtil;
 
 /**
  * 数据库管理工厂

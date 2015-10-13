@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * SQLite帮助类
+ * 继承自SQLiteOpenHelper，扩展实现自定义db的生成路径
  * Author: hyl
  * Time: 2015-8-15下午1:52:02
  */

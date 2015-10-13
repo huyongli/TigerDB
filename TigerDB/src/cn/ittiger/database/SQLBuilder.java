@@ -11,7 +11,7 @@ import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.Property;
 import cn.ittiger.database.manager.EntityTableManager;
 import cn.ittiger.database.manager.FieldTypeManager;
-import cn.ittiger.database.util.ValueUtil;
+import cn.ittiger.util.ValueUtil;
 
 /**
  * SQL语句构造器
