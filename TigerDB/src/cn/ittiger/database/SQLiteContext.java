@@ -8,7 +8,7 @@ import android.content.ContextWrapper;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import cn.ittiger.util.SdCardUtil;
+import android.os.Environment;
 import cn.ittiger.util.ValueUtil;
 
 /**
@@ -30,7 +30,7 @@ public class SQLiteContext extends ContextWrapper {
 			return super.getDatabasePath(name);
 		}
 
-		String dbPath = SdCardUtil.getRootPath() + config.getDbDirectoryPath();
+		String dbPath = getPhoneRootPath() + config.getDbDirectoryPath();
 		if(!config.getDbDirectoryPath().endsWith("/")) {
 			dbPath = dbPath + "/";
 		}
@@ -90,5 +90,16 @@ public class SQLiteContext extends ContextWrapper {
 			return super.openOrCreateDatabase(name, mode, factory, errorHandler);
 		}
 		return SQLiteDatabase.openOrCreateDatabase(getDatabasePath(name), null);
+	}
+	
+	/**
+	 * 获取手机根目录
+	 * @return
+	 */
+	public String getPhoneRootPath() {
+		if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+			return Environment.getExternalStorageDirectory().getPath();
+		}
+		return Environment.getDataDirectory().getAbsolutePath();
 	}
 }
