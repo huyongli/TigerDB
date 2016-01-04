@@ -9,7 +9,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.os.Environment;
-import cn.ittiger.util.ValueUtil;
+import cn.ittiger.database.util.ValueUtil;
 
 /**
  * 自定义数据库创建容器(设置数据库创建的自定义目录)
@@ -30,7 +30,26 @@ public class SQLiteContext extends ContextWrapper {
 			return super.getDatabasePath(name);
 		}
 
-		String dbPath = getPhoneRootPath() + config.getDbDirectoryPath();
+		String phoneRootPath = getPhoneRootPath();
+		String[] files = null;
+		if(phoneRootPath.startsWith("/")) {
+			files = phoneRootPath.substring(1).split("/");
+		} else {
+			files = phoneRootPath.split("/");
+		}
+		boolean flag = false;
+		for(int i = 0; i < files.length; i++) {
+			if(config.getDbDirectoryPath().contains(files[i])) {
+				flag = true;
+				break;
+			}
+		}
+		
+		String dbPath = config.getDbDirectoryPath();
+		if(flag == false) {
+			dbPath = phoneRootPath + config.getDbDirectoryPath();
+		}
+		
 		if(!config.getDbDirectoryPath().endsWith("/")) {
 			dbPath = dbPath + "/";
 		}

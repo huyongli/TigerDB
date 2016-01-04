@@ -7,7 +7,7 @@ import java.util.List;
 import android.database.Cursor;
 import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.Property;
-import cn.ittiger.database.log.TigerLog;
+import cn.ittiger.database.log.DBLog;
 import cn.ittiger.database.manager.EntityTableManager;
 
 /**
@@ -72,7 +72,7 @@ public class CursorUtil {
 				list.add(entity);
 			}
 		} catch (Exception e) {
-			TigerLog.debug("解析查询结果集出错", e);
+			DBLog.debug("解析查询结果集出错", e);
 			throw new IllegalArgumentException(e);
 		} finally {
 			closeCursor(cursor);
@@ -104,7 +104,8 @@ public class CursorUtil {
 				propertys.get(key).setValue(entity, cursor);
 			}
 		} catch (Exception e) {
-			TigerLog.debug("解析查询结果集出错", e);
+			entity = null;
+			DBLog.debug("解析查询结果集出错", e);
 			throw new IllegalArgumentException(e);
 		} finally {
 			closeCursor(cursor);
@@ -120,19 +121,32 @@ public class CursorUtil {
 	 * @return
 	 */
 	public static long parseCursorTotal(Cursor cursor) {
-		long total = 0;
+		String value = parseCursorFirstCol(cursor);
+		if(value == null) {
+			value = "0";
+		}
+		return Long.parseLong(value);
+	}
+	
+	/**
+	 * 解析游标结果的第一条记录的第一列的字段值
+	 * @param cursor
+	 * @return
+	 */
+	public static String parseCursorFirstCol(Cursor cursor) {
+		String value = null;
 		if(!isCursorRight(cursor)) {
-			return total;
+			return value;
 		}
 		try {
 			cursor.moveToFirst();
-			total = cursor.getLong(0);
+			value = cursor.getString(0);
 		} catch (Exception e) {
-			total = 0;
-			TigerLog.debug("解析实体类总数出错", e);
+			value = null;
+			DBLog.debug("解析实体类第一列结果出错", e);
 		} finally {
 			closeCursor(cursor);
 		}
-		return total;
+		return value;
 	}
 }

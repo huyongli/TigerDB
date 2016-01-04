@@ -15,11 +15,11 @@ public final class SQLiteDBConfig {
 	 */
 	public static String DEFAULT_DB_DIRECTORY_PATH = "/TigerDB/";
 	/**
-	 * 默认数据库名
+	 * 默认数据库名，可修改
 	 */
 	public static String DEFAULT_DB_NAME = "Tiger.db";
 	/**
-	 * 默认版本号
+	 * 默认版本号，可修改
 	 */
 	public static int DEFAULT_VERSION = 1;
 	/**

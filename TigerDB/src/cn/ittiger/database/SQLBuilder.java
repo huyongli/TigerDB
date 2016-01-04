@@ -1,17 +1,15 @@
 package cn.ittiger.database;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import cn.ittiger.database.bean.BindSQL;
 import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.Property;
 import cn.ittiger.database.manager.EntityTableManager;
 import cn.ittiger.database.manager.FieldTypeManager;
-import cn.ittiger.util.ValueUtil;
+import cn.ittiger.database.util.ValueUtil;
 
 /**
  * SQL语句构造器
@@ -134,10 +132,10 @@ public class SQLBuilder {
 		if(!isAutoIncrement) {//主键不是自增长列，需要自己设置主键值
 			sqlBuilder.append(entityTable.getPrimaryKey().getColumn()).append(",");//主键
 			argsBuidler.append("?").append(",");
-			bindArgs[i++] = entityTable.getPrimaryKey().getValue(entity);
-			if(ValueUtil.isEmpty(bindArgs[i])) {
+			if(ValueUtil.isEmpty(entityTable.getPrimaryKey().getValue(entity))) {//判断主键值是否为空
 				throw new IllegalArgumentException("非自增长主键必须手动设置主键值");
 			}
+			bindArgs[i++] = entityTable.getPrimaryKey().getValue(entity);
 		}
 		
 		Iterator<Property> iterator = propertys.iterator();
@@ -386,15 +384,22 @@ public class SQLBuilder {
 		StringBuilder sqlBuilder = new StringBuilder();
 		sqlBuilder.append("SELECT * FROM ");
 		sqlBuilder.append(entityTable.getTableName());
-		sqlBuilder.append(" WHERE ");
-		sqlBuilder.append(whereClause);
+		if(!ValueUtil.isEmpty(whereClause)) {
+			sqlBuilder.append(" WHERE ");
+			sqlBuilder.append(whereClause);
+		}
 		sqlBuilder.append(" LIMIT ? OFFSET ? * ? ");
 		String cur = String.valueOf(curPage - 1);
 		String size = String.valueOf(pageSize);
-		List<String> list = Arrays.asList(whereArgs);
-		list.add(size);
-		list.add(cur);
-		list.add(size);
-		return new BindSQL(sqlBuilder.toString(), list.toArray(new String[list.size()]));
+		
+		int length = whereArgs == null ? 0 : whereArgs.length;
+		String[] newWhereArgs = new String[length + 3];
+		if(length > 0) {
+			System.arraycopy(whereArgs, 0, newWhereArgs, 0, whereArgs.length);
+		}
+		newWhereArgs[length] = size;
+		newWhereArgs[length + 1] = cur;
+		newWhereArgs[length + 2] = size;
+		return new BindSQL(sqlBuilder.toString(), newWhereArgs);
 	}
 }

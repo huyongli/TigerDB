@@ -1,14 +1,12 @@
 package cn.ittiger.database.bean;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Date;
 
 import android.database.Cursor;
 import cn.ittiger.database.manager.FieldTypeManager;
-import cn.ittiger.util.DateUtil;
-import cn.ittiger.util.ValueUtil;
+import cn.ittiger.database.util.DateUtil;
+import cn.ittiger.database.util.ValueUtil;
 
 /**
  * 实体属性字段
@@ -28,14 +26,6 @@ public class Property {
 	 * 该字段对应实体信息中的属性字段信息
 	 */
 	private Field field;
-	/**
-	 * 该字段的get方法反射对象
-	 */
-	private Method get;
-	/**
-	 * 该字段的set方法反射对象
-	 */
-	private Method set;
 	
 	/**
 	 * 获取指定对象的当前字段的值
@@ -46,14 +36,13 @@ public class Property {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getValue(Object entity) {
-		if(entity != null || get != null) {
+		if(entity != null) {
 			try {
-				return (T) get.invoke(entity);
+				field.setAccessible(true);
+				return (T) field.get(entity);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 			}
 		}
@@ -71,36 +60,37 @@ public class Property {
 	public void setValue(Object entity, Object value) throws Exception {
 		int fieldType = FieldTypeManager.getFieldType(field);
 		try {
+			field.setAccessible(true);
 			switch(fieldType) {
 				case FieldTypeManager.BASE_TYPE_BOOLEAN:
-					set.invoke(entity, Boolean.parseBoolean(value.toString()));
+					field.set(entity, Boolean.parseBoolean(value.toString()));
 					break;
 				case FieldTypeManager.BASE_TYPE_BYTE_ARRAY:
-					set.invoke(entity, (byte[])value);
+					field.set(entity, (byte[])value);
 					break;
 				case FieldTypeManager.BASE_TYPE_CHAR:
-					set.invoke(entity, value.toString().charAt(0));
+					field.set(entity, value.toString().charAt(0));
 					break;
 				case FieldTypeManager.BASE_TYPE_STRING:
-					set.invoke(entity, value.toString());
+					field.set(entity, value.toString());
 					break;
 				case FieldTypeManager.BASE_TYPE_DATE:
-					set.invoke(entity, DateUtil.formatDatetime((Date) value));
+					field.set(entity, DateUtil.formatDatetime((Date) value));
 					break;
 				case FieldTypeManager.BASE_TYPE_DOUBLE:
-					set.invoke(entity, Double.parseDouble(value.toString()));
+					field.set(entity, Double.parseDouble(value.toString()));
 					break;
 				case FieldTypeManager.BASE_TYPE_FLOAT:
-					set.invoke(entity, Float.parseFloat(value.toString()));
+					field.set(entity, Float.parseFloat(value.toString()));
 					break;
 				case FieldTypeManager.BASE_TYPE_INT:
-					set.invoke(entity, Integer.parseInt(value.toString()));
+					field.set(entity, Integer.parseInt(value.toString()));
 					break;
 				case FieldTypeManager.BASE_TYPE_LONG:
-					set.invoke(entity, Long.parseLong(value.toString()));
+					field.set(entity, Long.parseLong(value.toString()));
 					break;
 				case FieldTypeManager.BASE_TYPE_SHORT:
-					set.invoke(entity, Short.parseShort(value.toString()));
+					field.set(entity, Short.parseShort(value.toString()));
 					break;
 			}
 		} catch (Exception e) {
@@ -119,40 +109,43 @@ public class Property {
 	public void setValue(Object entity, Cursor cursor) throws Exception {
 		int fieldType = FieldTypeManager.getFieldType(field);
 		try {
-			int culomnIdx = cursor.getColumnIndex(column);
-			String columnValue = cursor.getString(culomnIdx);
+			int columnIdx = cursor.getColumnIndex(column);
+			if(columnIdx == -1) {//当前游标中没有该字段的值
+				return;
+			}
+			String columnValue = cursor.getString(columnIdx);
 			boolean isEmpty = ValueUtil.isEmpty(columnValue);
+			field.setAccessible(true);
 			switch(fieldType) {
 				case FieldTypeManager.BASE_TYPE_BOOLEAN:
-					set.invoke(entity, isEmpty ? false : Boolean.parseBoolean(columnValue));
+					field.set(entity, isEmpty ? false : Boolean.parseBoolean(columnValue));
 					break;
 				case FieldTypeManager.BASE_TYPE_BYTE_ARRAY:
-					set.invoke(entity, cursor.getBlob(culomnIdx));
+					field.set(entity, cursor.getBlob(columnIdx));
 					break;
 				case FieldTypeManager.BASE_TYPE_CHAR:
-					set.invoke(entity, isEmpty ? Character.valueOf(' ') : columnValue.charAt(0));
+					field.set(entity, isEmpty ? Character.valueOf(' ') : columnValue.charAt(0));
 					break;
 				case FieldTypeManager.BASE_TYPE_STRING:
-					set.invoke(entity, columnValue);
+					field.set(entity, isEmpty ? "" : columnValue);
 					break;
 				case FieldTypeManager.BASE_TYPE_DATE:
-					
-					set.invoke(entity, isEmpty ? "" : DateUtil.parseDatetime(columnValue));
+					field.set(entity, isEmpty ? "" : DateUtil.parseDatetime(columnValue));
 					break;
 				case FieldTypeManager.BASE_TYPE_DOUBLE:
-					set.invoke(entity, cursor.getDouble(culomnIdx));
+					field.set(entity, cursor.getDouble(columnIdx));
 					break;
 				case FieldTypeManager.BASE_TYPE_FLOAT:
-					set.invoke(entity, cursor.getFloat(culomnIdx));
+					field.set(entity, cursor.getFloat(columnIdx));
 					break;
 				case FieldTypeManager.BASE_TYPE_INT:
-					set.invoke(entity, cursor.getInt(culomnIdx));
+					field.set(entity, cursor.getInt(columnIdx));
 					break;
 				case FieldTypeManager.BASE_TYPE_LONG:
-					set.invoke(entity, cursor.getLong(culomnIdx));
+					field.set(entity, cursor.getLong(columnIdx));
 					break;
 				case FieldTypeManager.BASE_TYPE_SHORT:
-					set.invoke(entity, cursor.getShort(culomnIdx));
+					field.set(entity, cursor.getShort(columnIdx));
 					break;
 			}
 		} catch (Exception e) {
@@ -182,21 +175,5 @@ public class Property {
 	
 	public void setField(Field field) {
 		this.field = field;
-	}
-
-	public Method getGet() {
-		return get;
-	}
-
-	public void setGet(Method get) {
-		this.get = get;
-	}
-
-	public Method getSet() {
-		return set;
-	}
-
-	public void setSet(Method set) {
-		this.set = set;
 	}
 }

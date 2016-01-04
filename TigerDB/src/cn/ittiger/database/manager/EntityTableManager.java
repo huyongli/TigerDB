@@ -17,8 +17,7 @@ import cn.ittiger.database.annotation.PrimaryKey;
 import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.Property;
 import cn.ittiger.database.util.CursorUtil;
-import cn.ittiger.database.util.FieldUtil;
-import cn.ittiger.util.ValueUtil;
+import cn.ittiger.database.util.ValueUtil;
 
 /**
  * 实体类管理对象
@@ -56,8 +55,9 @@ public final class EntityTableManager implements Serializable {
 	public static EntityTable getEntityTable(Class<?> mClass) {
 		if(mTableMap.containsKey(mClass)) {
 			return mTableMap.get(mClass);
+		} else {
+			return createEntityTable(mClass);
 		}
-		return null;
 	}
 
 	/**
@@ -167,8 +167,6 @@ public final class EntityTableManager implements Serializable {
 					primaryKey.setField(field);
 					primaryKey.setColumn(columnName);
 					primaryKey.setAutoGenerate(key.isAutoGenerate());//获取是否自动增长
-					primaryKey.setGet(FieldUtil.getFieldGetMethod(mClass, field));
-					primaryKey.setSet(FieldUtil.getFieldSetMethod(mClass, field));
 					entity.setPrimaryKey(primaryKey);
 					continue;
 				}
@@ -191,8 +189,6 @@ public final class EntityTableManager implements Serializable {
 					property.setDefaultValue(column.defaultValue());
 				}
 				property.setColumn(columnName);
-				property.setGet(FieldUtil.getFieldGetMethod(mClass, field));
-				property.setSet(FieldUtil.getFieldSetMethod(mClass, field));
 				entity.getColumnMap().put(property.getColumn(), property);
 				continue;
 			}
@@ -206,10 +202,8 @@ public final class EntityTableManager implements Serializable {
 				throw new IllegalArgumentException("无注解字段名不能为SQLite关键字：" + columnName);
 			}
 			
-			//没有设置任务注解的字段，以字段名为数据库列名
+			//没有设置注解的字段，以字段名为数据库列名
 			property.setColumn(field.getName());
-			property.setGet(FieldUtil.getFieldGetMethod(mClass, field));
-			property.setSet(FieldUtil.getFieldSetMethod(mClass, field));
 			entity.getColumnMap().put(property.getColumn(), property);
 		}
 		

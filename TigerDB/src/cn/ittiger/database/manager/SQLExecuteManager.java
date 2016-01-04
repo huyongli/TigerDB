@@ -8,8 +8,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import cn.ittiger.database.bean.BindSQL;
-import cn.ittiger.log.TigerLog;
-import cn.ittiger.util.DateUtil;
+import cn.ittiger.database.log.DBLog;
+import cn.ittiger.database.util.DateUtil;
 
 /**
  * SQL语句执行器
@@ -91,7 +91,7 @@ public class SQLExecuteManager implements Serializable {
 	 * @param sql
 	 */
 	public void execSQL(String sql) {
-		TigerLog.info(sql);
+		DBLog.debug(sql);
 		this.mSQLiteDataBase.execSQL(sql);
 	}
 	
@@ -111,7 +111,7 @@ public class SQLExecuteManager implements Serializable {
 				bindArgs(statement, i + 1, args[i]);
 			}
 			rowId = statement.executeInsert();
-			TigerLog.info(sql, args);
+			DBLog.debug(sql, args);
 		} finally {
 			statement.close();
 		}
@@ -204,7 +204,7 @@ public class SQLExecuteManager implements Serializable {
 			for(int i = 0; i < args.length; i++) {
 				bindArgs(statement, i + 1, args[i]);
 			}
-			TigerLog.info(sql, args);
+			DBLog.debug(sql, args);
 			statement.executeUpdateDelete();
 		} finally {
 			statement.close();
@@ -220,7 +220,7 @@ public class SQLExecuteManager implements Serializable {
 	 * @param whereArgs			where子句后面的占位符参数
 	 */
 	public void delete(String tableName, String whereClause, String[] whereArgs) {
-		TigerLog.info("{SQL：DELETE FROM " + tableName + " WHERE " + whereClause + "，PARAMS：" + whereArgs + "}");
+		DBLog.debug("{SQL：DELETE FROM " + tableName + " WHERE " + whereClause + "，PARAMS：" + whereArgs + "}");
 		mSQLiteDataBase.delete(tableName, whereClause, whereArgs);
 	}
 	
@@ -254,7 +254,7 @@ public class SQLExecuteManager implements Serializable {
 	 * @return
 	 */
 	public Cursor query(String sql, String[] whereArgs) {
-		TigerLog.info("{SQL：" + sql + "，PARAMS：" + whereArgs + "}");
+		DBLog.debug("{SQL：" + sql + "，PARAMS：" + whereArgs + "}");
 		return this.mSQLiteDataBase.rawQuery(sql, whereArgs); 
 	}
 

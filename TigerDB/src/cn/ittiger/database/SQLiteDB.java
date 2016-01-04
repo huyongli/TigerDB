@@ -7,11 +7,13 @@ import java.util.List;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import cn.ittiger.database.bean.BindSQL;
+import cn.ittiger.database.bean.EntityTable;
 import cn.ittiger.database.bean.PrimaryKey;
 import cn.ittiger.database.manager.EntityTableManager;
 import cn.ittiger.database.manager.SQLExecuteManager;
 import cn.ittiger.database.util.CursorUtil;
-import cn.ittiger.util.ValueUtil;
+import cn.ittiger.database.util.ValueUtil;
 
 /**
  * 数据库操作类
@@ -38,6 +40,10 @@ public class SQLiteDB {
 	 */
 	private SQLExecuteManager mSQLExecuteManager;
 	
+	public SQLExecuteManager getSQLExecuteManager() {
+		return mSQLExecuteManager;
+	}
+
 	public SQLiteDBConfig getConfig() {
 		return mConfig;
 	}
@@ -50,6 +56,13 @@ public class SQLiteDB {
 			throw new NullPointerException("创建数据库对象失败");
 		}
 		mSQLExecuteManager = new SQLExecuteManager(mDB);
+	}
+	
+	/**
+	 * 关闭当前数据库
+	 */
+	public void close() {
+		this.mDB.close();
 	}
 
 	/**
@@ -122,7 +135,7 @@ public class SQLiteDB {
 	}
 	
 	/**
-	 * 删除集合中的实体(有事务控制)
+	 * 删除集合中的实体(有事务控制)，每个实体根据主键删除
 	 * Author: hyl
 	 * Time: 2015-8-17下午10:25:59
 	 * @param collection	要删除的实体集合
@@ -157,6 +170,18 @@ public class SQLiteDB {
 		}
 		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
 		mSQLExecuteManager.delete(SQLBuilder.getDeleteSQL(mClass, primaryKeyValue));
+	}
+	
+	/**
+	 * 根据指定条件删除指定的实体
+	 * @param mClass		要删除的实体类
+	 * @param whereClause	where后面的条件句(delete from XXX where XXX)，参数使用占位符
+	 * @param whereArgs		占位符参数
+	 */
+	public void delete(Class<?> mClass, String whereClause, String[] whereArgs) {
+		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
+		EntityTable entityTable = EntityTableManager.getEntityTable(mClass);
+		delete(entityTable.getTableName(), whereClause, whereArgs);
 	}
 	
 	/**
@@ -195,7 +220,7 @@ public class SQLiteDB {
 	}
 	
 	/**
-	 * 更新指定实体(必须设置主键)
+	 * 更新指定实体(必须设置主键，根据主键更新)
 	 * @author: huylee
 	 * @time:	2015-8-20下午10:02:41
 	 * @param entity
@@ -207,7 +232,7 @@ public class SQLiteDB {
 	}
 	
 	/**
-	 * 更新指定集合数据
+	 * 更新指定集合数据(每个实体必须设置主键，根据主键更新)
 	 * @author: huylee
 	 * @time:	2015-8-20下午10:49:45
 	 * @param collection
@@ -283,6 +308,37 @@ public class SQLiteDB {
 	}
 	
 	/**
+	 * 根据条件查询符合条件的第一条实体类
+	 * Author: hyl
+	 * Time: 2015-8-21上午11:29:05
+	 * @param mClass		查询的实体类
+	 * @param whereClause	查询条件where子句
+	 * @param whereArgs		where子句参数
+	 * @return	存在返回第一条实体类，不存在返回null
+	 */
+	public <T> T queryOne(Class<T> mClass, String whereClause, String[] whereArgs) {
+		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
+		Cursor cursor = mSQLExecuteManager.query(SQLBuilder.getQuerySQL(mClass, whereClause, whereArgs));
+		List<T> list = CursorUtil.parseCursor(cursor, mClass);
+		return list.size() > 0 ? list.get(0) : null;
+	}
+	
+	/**
+	 * 根据SQL语句查询实体类
+	 * Author: hyl
+	 * Time: 2015-8-21上午11:29:05
+	 * @param mClass		查询的实体类
+	 * @param whereClause	查询条件where子句
+	 * @param whereArgs		where子句参数
+	 * @return
+	 */
+	public <T> List<T> queryBySQL(Class<T> mClass, String sql, String[] whereArgs) {
+		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
+		Cursor cursor = mSQLExecuteManager.query(new BindSQL(sql, whereArgs));
+		return CursorUtil.parseCursor(cursor, mClass);
+	}
+	
+	/**
 	 * 分页查询
 	 * Author: hyl
 	 * Time: 2015-8-21上午11:42:32
@@ -332,8 +388,7 @@ public class SQLiteDB {
 	 */
 	public long queryTotal(Class<?> mClass) {
 		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
-		Cursor cursor = mSQLExecuteManager.query(SQLBuilder.getTotalSQL(mClass, null, null));
-		return CursorUtil.parseCursorTotal(cursor);
+		return queryTotal(mClass, null, null);
 	}
 	
 	/**
@@ -365,6 +420,33 @@ public class SQLiteDB {
 	}
 	
 	/**
+	 * 查询指定实体类中是否存在指定主键值的实体对象
+	 * @param mClass			查询实体类
+	 * @param primaryKeyValue	实体主键值
+	 * @return	存在返回true，不存在返回false
+	 */
+	public boolean queryIfExist(Class<?> mClass, String primaryKeyValue) {
+		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
+		EntityTable entityTable = EntityTableManager.getEntityTable(mClass);
+		String whereClause = entityTable.getPrimaryKey().getColumn() + "=?";
+		String[] whereArgs = {primaryKeyValue};
+		long count = queryTotal(mClass, whereClause, whereArgs);
+		return count > 0 ? true : false;
+	}
+	
+	/**
+	 * 根据查询条件判断是否存在指定的数据
+	 * @param mClass		查询实体类
+	 * @param whereClause	查询条件
+	 * @param whereArgs		查询参数
+	 * @return				存在返回true，不存在返回false
+	 */
+	public boolean queryIfExist(Class<?> mClass, String whereClause, String[] whereArgs) {
+		long count = queryTotal(mClass, whereClause, whereArgs);
+		return count > 0 ? true : false;
+	}
+	
+	/**
 	 * 根据SQL语句查询
 	 * Author: hyl
 	 * Time: 2015-8-21上午11:52:11
@@ -374,5 +456,24 @@ public class SQLiteDB {
 	 */
 	public Cursor query(String sql, String[] bindArgs) {
 		return mSQLExecuteManager.query(sql, bindArgs);
+	}
+	
+
+	/**
+	 * 根据查询条件查询指定实体的指定字段信息
+	 * @param mClass		要查询的实体
+	 * @param selectCols	要查询的数据库字段，多个查询字段间使用逗号隔开
+	 * @param whereClause	查询条件(无查询条件时，可以传值null)
+	 * @param whereArgs		查询条件参数值
+	 * @return
+	 */
+	public <T> Cursor query(Class<T> mClass, String selectCols, String whereClause, String[] whereArgs) {
+		EntityTableManager.checkOrCreateTable(mSQLExecuteManager, mClass);
+		String tableName = EntityTableManager.getEntityTable(mClass).getTableName();
+		String sql = "SELECT " + selectCols + " FROM " + tableName;
+		if(!ValueUtil.isEmpty(whereClause)) {
+			sql += " WHERE " + whereClause;
+		}
+		return query(sql, whereArgs);
 	}
 }

@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.ittiger.database.manager.FieldTypeManager;
-import cn.ittiger.util.ValueUtil;
 
 public class FieldUtil {
 	

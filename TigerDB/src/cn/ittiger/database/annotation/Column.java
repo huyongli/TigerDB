@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 配置数据库列名和默认值，不配置columnName则默认以字段名作为列名，不配置defaultValue则无列默认值
+ * 实体字段不设置该注解，则默认已字段名作为列名
+ * 此注解配置数据库指定列名和字段默认值，不配置columnName则默认以字段名作为列名，不配置defaultValue则无列默认值
  * @author: huylee
  * @time:	2015-8-13下午10:37:44
  */
