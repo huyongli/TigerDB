@@ -65,6 +65,10 @@ public class SQLiteDBFactory {
 				}
 			}
 		}
+		SQLiteDB db = dbMap.get(config.getDbName());
+		if(!db.isOpen()) {
+			db.reOpen();
+		}
 		return dbMap.get(config.getDbName());
 	}
 }

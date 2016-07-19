@@ -87,6 +87,10 @@ public final class EntityTableManager implements Serializable {
 				//对已存在表的字段与最新的实体对象进行比较，看是否需要更新表的字段信息
 				checkOrAlterTableColumn(sqlExecuteManager, entityTable);
 			}
+		} else {//缓存中存在实体表映射关系，检查当前数据库中是否存在该表，不存在创建该表
+			if(!checkTableIsInDB(sqlExecuteManager, mTableMap.get(mClass).getTableName())) {//数据库中不存在
+				createTable(sqlExecuteManager, mTableMap.get(mClass));
+			}
 		}
 	}
 	
@@ -126,29 +130,42 @@ public final class EntityTableManager implements Serializable {
 	 * 创建实体类
 	 * Author: hyl
 	 * Time: 2015-8-14下午9:29:28
-	 * @param entity
+	 * @param mClass
 	 */
 	public static EntityTable createEntityTable(Class<?> mClass) {
 		EntityTable entity = new EntityTable(mClass);
 		entity.setTableName(SQLBuilder.getTableName(mClass));
+
+		Class<?> claxx = mClass;
+		while(claxx != Object.class) {
+			setEntityTableField(entity, claxx);
+			claxx = claxx.getSuperclass();
+		}
 		
+		if(entity.getPrimaryKey() == null) {
+			throw new RuntimeException("必须为实体" + mClass.getName() + "设置主键---[在要设置主键的字段上添加注解PrimaryKey来设置主键]");
+		}
+		return entity;
+	}
+
+	private static void setEntityTableField(EntityTable entity, Class claxx) {
 		/*
 		 * 获取Class下声明的所有字段信息(包括：public,protected,private,默认级别， 四种访问级别的字段信息)
 		 * 如果该Class没有声明任何字段或是Class代表一个基本类型、数组或void，则返回数组长度为0
 		 * */
-		Field[] fields = mClass.getDeclaredFields();
-		String columnName = "";//字段列名 
+		Field[] fields = claxx.getDeclaredFields();
+		String columnName = "";//字段列名
 		for(int i = 0; i < fields.length; i++) {
 			Field field = fields[i];
-			
+
 			if (Modifier.isStatic(field.getModifiers())) {//过滤掉static静态字段
 				continue;
 			}
-			
+
 			if(FieldTypeManager.getFieldType(field) == FieldTypeManager.NOT_BASE_TYPE) {//过滤掉非基本类型字段
 				continue;
 			}
-			
+
 			if(entity.getPrimaryKey() == null) {//主键设置过后即不再遍历主键注解
 				PrimaryKey key = field.getAnnotation(PrimaryKey.class);
 				if(key != null) {//声明了主键字段
@@ -171,7 +188,7 @@ public final class EntityTableManager implements Serializable {
 					continue;
 				}
 			}
-			
+
 			Property property = new Property();
 			property.setField(field);
 
@@ -192,25 +209,20 @@ public final class EntityTableManager implements Serializable {
 				entity.getColumnMap().put(property.getColumn(), property);
 				continue;
 			}
-			
+
 			NotDBColumn notDbColumn = field.getAnnotation(NotDBColumn.class);
 			if(notDbColumn != null) {//非数据库字段不作处理
 				continue;
 			}
-			
+
 			if(Arrays.binarySearch(SQLExecuteManager.SQLITE_KEYWORDS, field.getName().toUpperCase()) >= 0) {
-				throw new IllegalArgumentException("无注解字段名不能为SQLite关键字：" + columnName);
+				throw new IllegalArgumentException("注解字段名不能为SQLite关键字：" + columnName);
 			}
-			
+
 			//没有设置注解的字段，以字段名为数据库列名
 			property.setColumn(field.getName());
 			entity.getColumnMap().put(property.getColumn(), property);
 		}
-		
-		if(entity.getPrimaryKey() == null) {
-			throw new RuntimeException("必须为实体" + mClass.getName() + "设置主键---[在要设置主键的字段上添加注解PrimaryKey来设置主键]");
-		}
-		return entity;
 	}
 	
 	/**

@@ -107,8 +107,10 @@ public class SQLExecuteManager implements Serializable {
 		long rowId = -1;
 		SQLiteStatement statement = this.mSQLiteDataBase.compileStatement(sql);
 		try {
-			for(int i = 0; i < args.length; i++) {
-				bindArgs(statement, i + 1, args[i]);
+			if(args != null) {
+				for(int i = 0; i < args.length; i++) {
+					bindArgs(statement, i + 1, args[i]);
+				}
 			}
 			rowId = statement.executeInsert();
 			DBLog.debug(sql, args);
@@ -201,8 +203,10 @@ public class SQLExecuteManager implements Serializable {
 	public void updateOrDelete(String sql, Object[] args) {
 		SQLiteStatement statement = mSQLiteDataBase.compileStatement(sql);
 		try {
-			for(int i = 0; i < args.length; i++) {
-				bindArgs(statement, i + 1, args[i]);
+			if(args != null) {
+				for(int i = 0; i < args.length; i++) {
+					bindArgs(statement, i + 1, args[i]);
+				}
 			}
 			DBLog.debug(sql, args);
 			statement.executeUpdateDelete();

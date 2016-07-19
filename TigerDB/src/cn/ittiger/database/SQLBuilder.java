@@ -234,11 +234,13 @@ public class SQLBuilder {
 		StringBuilder sqlBuilder = new StringBuilder();
 		
 		sqlBuilder.append("DELETE FROM ").append(entityTable.getTableName());
+		String[] bindArgs = null;
 		if(!ValueUtil.isEmpty(primaryKeyValue)) {
 			sqlBuilder.append(" WHERE ").append(entityTable.getPrimaryKey().getColumn()).append(" = ?");
+			bindArgs = new String[]{primaryKeyValue};
 		}
 		
-		return new BindSQL(sqlBuilder.toString(), new String[]{primaryKeyValue});
+		return new BindSQL(sqlBuilder.toString(), bindArgs);
 	}
 	
 	/**

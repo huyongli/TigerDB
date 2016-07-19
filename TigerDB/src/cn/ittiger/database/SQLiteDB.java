@@ -51,6 +51,13 @@ public class SQLiteDB {
 	public SQLiteDB(SQLiteDBConfig mConfig) {
 		super();
 		this.mConfig = mConfig;
+		createDB();
+	}
+	
+	/**
+	 * 创建数据库
+	 */
+	private void createDB() {
 		mDB = new SQLiteHelper(mConfig).getWritableDatabase();
 		if(mDB == null) {
 			throw new NullPointerException("创建数据库对象失败");
@@ -63,6 +70,23 @@ public class SQLiteDB {
 	 */
 	public void close() {
 		this.mDB.close();
+	}
+	
+	/**
+	 * 判断当前数据库是否打开
+	 * @return
+	 */
+	public boolean isOpen() {
+		return this.mDB.isOpen();
+	}
+	
+	/**
+	 * 重新打开数据库
+	 */
+	public void reOpen() {
+		if(!isOpen()) {
+			createDB();
+		}
 	}
 
 	/**
