@@ -1,7 +1,10 @@
 # [TigerDB](http://ittiger.cn/2015/10/01/%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%E7%9A%84Android-ORM%E6%A1%86%E6%9E%B6TigerDB/)
 基于Android中原生SDK操作SQLite的封装，大大简化了实体对象与本地数据库间的交互操作，提升App的开发效率<br/>
-##
 
+# 使用方式
+compile 'cn.ittiger:tigerdb:1.0'
+
+##
 TigerDB是一个简单的Android ORM框架，它能让你一句话实现数据库的增删改查，同时支持实体对象的持久化和自动映射，同时你也不必关心表结构的变化，因为它会自动检测新增字段来更新你的表结构。
 
 该库主要包括如下几个要点：<br/>

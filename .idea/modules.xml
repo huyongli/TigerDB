@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TigerDB.iml" filepath="$PROJECT_DIR$/TigerDB.iml" />
-      <module fileurl="file://$PROJECT_DIR$/TigerDB/TigerDB-TigerDB.iml" filepath="$PROJECT_DIR$/TigerDB/TigerDB-TigerDB.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tigerdb/tigerdb.iml" filepath="$PROJECT_DIR$/tigerdb/tigerdb.iml" />
     </modules>
   </component>
 </project>
