@@ -1,6 +1,10 @@
 # [TigerDB](http://ittiger.cn/2015/10/01/%E7%AE%80%E5%8D%95%E5%AE%9E%E7%94%A8%E7%9A%84Android-ORM%E6%A1%86%E6%9E%B6TigerDB/)
 基于Android中原生SDK操作SQLite的封装，大大简化了实体对象与本地数据库间的交互操作，提升App的开发效率<br/>
 
+
+# 个人微信公众号，欢迎扫码关注交流：   
+![](https://img-blog.csdnimg.cn/2019052410035231.jpg)
+
 # 使用方式
 compile 'cn.ittiger:tigerdb:1.0'
 
